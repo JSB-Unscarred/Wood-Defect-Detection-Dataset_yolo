@@ -1,0 +1,5 @@
+# 数据集预处理依赖库
+# 用于将 DatasetNinja 格式转换为 YOLO 格式
+
+# YAML 解析库 - 用于生成 data.yaml 配置文件
+pyyaml>=6.0
