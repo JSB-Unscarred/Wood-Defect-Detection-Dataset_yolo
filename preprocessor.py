@@ -319,8 +319,8 @@ def print_statistics(stats, output_dir):
 
 def main():
     """主函数"""
-    SOURCE_DIR = "/data/chx25/wood-defect-detection-DatasetNinja"
-    OUTPUT_DIR = "/data/chx25/yolo_training_programn/wood_defect_yolo"
+    SOURCE_DIR = "/data/chx25/wood-defect-detection-DatasetNinja" #修改这里的路径为数据集的真实路径
+    OUTPUT_DIR = "/data/chx25/yolo_training_programn/wood_defect_yolo" #修改这里的路径为你想要保存YOLO格式数据集的路径
     META_PATH = os.path.join(SOURCE_DIR, "meta.json")
     IMG_DIR = os.path.join(SOURCE_DIR, "ds/img")
     ANN_DIR = os.path.join(SOURCE_DIR, "ds/ann")

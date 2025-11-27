@@ -205,3 +205,9 @@ wood_defect_yolo/*
 #claude code
 .claude/
 
+#模型权重文件
+*.pt
+
+#模型输出
+model/
+
