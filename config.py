@@ -18,7 +18,7 @@ class TrainingConfig:
     """YOLOv11木材缺陷检测训练配置"""
   
     # ==================== 实验配置 ====================
-    name: str = "wood_defect_yolo11"  # 实验名称
+    name: str = "wood_defect_yolo11s"  # 实验名称
     exist_ok: bool = False  # 是否覆盖已存在的实验
 
     # ==================== 路径配置 ====================
@@ -40,7 +40,7 @@ class TrainingConfig:
 
     # ==================== 数据增强参数 ====================
     # 禁用的增强
-    mosaic: float = 0.0  # 关闭Mosaic增强（用户要求）
+    mosaic: float = 0.0  # 关闭Mosaic增强
 
     # 启用的几何增强
     fliplr: float = 0.5  # 水平翻转概率

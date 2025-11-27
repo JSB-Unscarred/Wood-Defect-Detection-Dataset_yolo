@@ -39,7 +39,7 @@ if MATPLOTLIB_AVAILABLE:
 
 
 class VectorPlotter:
-    """矢量图生成器 - 支持PDF、SVG和高清PNG格式"""
+    """矢量图生成器 - 支持PDF格式"""
 
     def __init__(self, save_dir: Path, dpi: int = 300):
         """
@@ -99,21 +99,16 @@ class VectorPlotter:
 
         plt.tight_layout()
 
-        # 保存为多种格式
+        # 只保存PDF格式
         output_paths = []
-        formats = ['pdf', 'svg', 'png']
-        base_name = 'training_curves'
+        output_path = self.save_dir / 'training_curves.pdf'
 
-        for fmt in formats:
-            output_path = self.save_dir / f'{base_name}.{fmt}'
-            try:
-                dpi_value = self.dpi if fmt == 'png' else None
-                plt.savefig(output_path, format=fmt, dpi=dpi_value,
-                           bbox_inches='tight')
-                output_paths.append(output_path)
-                logging.info(f"矢量图已保存: {output_path}")
-            except Exception as e:
-                logging.error(f"保存{fmt}格式失败: {e}")
+        try:
+            plt.savefig(output_path, format='pdf', bbox_inches='tight')
+            output_paths.append(output_path)
+            logging.info(f"训练曲线PDF已保存: {output_path}")
+        except Exception as e:
+            logging.error(f"保存PDF失败: {e}")
 
         plt.close()
         return output_paths

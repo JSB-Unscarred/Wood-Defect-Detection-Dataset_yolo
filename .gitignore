@@ -199,4 +199,9 @@ pyrightconfig.json
 
 # 数据集
 wood_defect_yolo/*
+#日志
 *.log
+
+#claude code
+.claude/
+
