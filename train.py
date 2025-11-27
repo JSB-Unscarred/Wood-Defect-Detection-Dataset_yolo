@@ -6,13 +6,6 @@ YOLOv11s木材缺陷检测主训练脚本
 - 使用自定义配置进行训练
 - 集成TensorBoard可视化
 - 导出CSV/Excel训练指标
-- 生成高质量矢量图
-
-使用方法:
-    python train.py
-
-作者: Claude Code
-日期: 2025
 """
 
 import logging
@@ -33,7 +26,6 @@ except ImportError:
 
 from config import TrainingConfig
 from callbacks import MetricsExporter, ProgressLogger
-from utils.visualizer import VectorPlotter
 
 
 def setup_logging(log_dir: Path) -> Path:
@@ -121,38 +113,6 @@ def setup_callbacks(model: YOLO, config: TrainingConfig, save_dir: Path):
     return exporter, progress_logger
 
 
-def post_training_visualization(save_dir: Path):
-    """
-    训练后生成矢量图
-
-    Args:
-        save_dir: 训练结果保存目录
-    """
-    logging.info("=" * 80)
-    logging.info("开始生成矢量图...")
-
-    try:
-        plotter = VectorPlotter(save_dir, dpi=300)
-
-        # 从自定义CSV生成矢量图
-        custom_csv = save_dir / "training_metrics.csv"
-        if custom_csv.exists():
-            output_files = plotter.plot_training_curves(custom_csv)
-            logging.info(f"成功生成 {len(output_files)} 个矢量图文件")
-        else:
-            logging.warning(f"自定义CSV不存在: {custom_csv}")
-
-        # YOLO自带的results.csv
-        yolo_csv = save_dir / "results.csv"
-        if yolo_csv.exists():
-            logging.info(f"YOLO内置结果文件: {yolo_csv}")
-        else:
-            logging.warning("YOLO results.csv未找到")
-
-    except Exception as e:
-        logging.error(f"矢量图生成失败: {e}", exc_info=True)
-
-
 def print_final_summary(save_dir: Path, log_file: Path):
     """
     打印训练完成摘要
@@ -179,8 +139,6 @@ def print_final_summary(save_dir: Path, log_file: Path):
         ("YOLO结果CSV", save_dir / "results.csv"),
         ("自定义指标CSV", save_dir / "training_metrics.csv"),
         ("自定义指标Excel", save_dir / "training_metrics.xlsx"),
-        ("训练曲线PDF", save_dir / "training_curves.pdf"),
-        ("训练曲线SVG", save_dir / "training_curves.svg"),
     ]
 
     logging.info("\n结果文件:")
@@ -197,6 +155,10 @@ def print_final_summary(save_dir: Path, log_file: Path):
 
     # 日志文件
     logging.info(f"\n训练日志: {log_file}")
+
+    # 可视化提示
+    logging.info(f"\n要生成训练曲线可视化，请运行:")
+    logging.info(f"  python visualize_results.py --result-dir {save_dir}")
 
     logging.info("=" * 80)
 
@@ -248,13 +210,10 @@ def main():
         # 8. 设置回调并导出指标（注意：回调已在训练过程中执行）
         # 这里主要是为了确保所有文件都已生成
 
-        # 9. 生成矢量图
-        post_training_visualization(save_dir)
-
-        # 10. 打印最终摘要
+        # 9. 打印最终摘要
         print_final_summary(save_dir, log_file)
 
-        # 11. 成功完成
+        # 10. 成功完成
         logging.info("所有任务完成！")
         return 0
 

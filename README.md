@@ -1,12 +1,13 @@
 # YOLOv11 木材缺陷检测训练程序
 
-基于YOLOv11s的木材缺陷检测模型训练系统。支持自定义数据增强、TensorBoard可视化、CSV/Excel指标导出和高质量矢量图生成。
+基于YOLOv11s的木材缺陷检测模型训练系统。支持自定义数据增强、TensorBoard可视化、CSV/Excel指标导出和可选的矢量图生成。
 
 ## 项目结构
 
 ```
 yolo_training_programn/
 ├── train.py                    # 主训练脚本
+├── visualize_results.py        # 独立可视化脚本（可选）
 ├── config.py                   # 配置管理模块
 ├── callbacks.py                # 自定义回调函数
 ├── preprocessor.py             # 数据预处理脚本
@@ -104,7 +105,6 @@ python3 train.py
 - 开始训练并实时记录指标
 - 保存最佳和最后权重
 - 导出CSV/Excel训练数据
-- 生成矢量图
 
 ### 4. 监控训练（可选）
 
@@ -115,6 +115,20 @@ tensorboard --logdir=model/wood_defect_yolo11s
 ```
 
 然后访问: http://localhost:6006
+
+### 5. 生成可视化（可选）
+
+训练完成后，如需生成训练曲线可视化PDF文件：
+
+```bash
+# 自动找最新训练结果并生成可视化
+python visualize_results.py
+
+# 或指定特定训练结果目录
+python visualize_results.py --result-dir ./model/wood_defect_yolo11s
+```
+
+这将生成包含损失曲线、mAP指标、精度/召回率和学习率的 `training_curves.pdf` 文件。
 
 ## 训练输出
 
@@ -130,8 +144,8 @@ tensorboard --logdir=model/wood_defect_yolo11s
 - `training_metrics.xlsx` - Excel格式（带摘要sheet）
 
 ### 可视化
-- `training_curves.pdf` - 训练曲线矢量图（PDF格式）
-- `confusion_matrix.png` - 混淆矩阵
+- `training_curves.pdf` - 训练曲线矢量图（需手动运行 `python visualize_results.py` 生成）
+- `confusion_matrix.png` - 混淆矩阵（YOLO自动生成）
 - `F1_curve.png`, `PR_curve.png` 等（YOLO自动生成）
 
 ### 配置备份
