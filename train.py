@@ -185,35 +185,56 @@ def main():
         logging.error("环境验证失败，终止训练")
         sys.exit(1)
 
-    # 5. 加载预训练模型
-    logging.info(f"正在加载预训练模型: {config.pretrained_model}")
-    try:
-        model = YOLO(config.pretrained_model)
-        logging.info("预训练模型加载成功")
-    except Exception as e:
-        logging.error(f"模型加载失败: {e}", exc_info=True)
-        sys.exit(1)
+    # 5. 检测并加载模型
+    checkpoint_path = config.output_dir / config.name / "weights" / "last.pt"
+    resume_training = checkpoint_path.exists()
+
+    if resume_training:
+        logging.info("=" * 80)
+        logging.info("检测到已有训练进度，将自动恢复训练")
+        logging.info(f"Checkpoint: {checkpoint_path}")
+        logging.info("=" * 80)
+        try:
+            model = YOLO(str(checkpoint_path))
+            logging.info("Checkpoint加载成功")
+        except Exception as e:
+            logging.error(f"Checkpoint加载失败，从头开始: {e}")
+            resume_training = False
+            model = YOLO(config.pretrained_model)
+    else:
+        logging.info(f"未检测到训练进度，从预训练模型开始")
+        logging.info(f"加载模型: {config.pretrained_model}")
+        try:
+            model = YOLO(config.pretrained_model)
+            logging.info("预训练模型加载成功")
+        except Exception as e:
+            logging.error(f"模型加载失败: {e}", exc_info=True)
+            sys.exit(1)
 
     # 6. 开始训练
     logging.info("=" * 80)
-    logging.info("开始训练...")
+    logging.info("恢复训练..." if resume_training else "开始训练...")
     logging.info("=" * 80)
 
     try:
+        # 设置回调（在训练前）
+        setup_callbacks(model, config, config.output_dir / config.name)
+
         # 执行训练
-        results = model.train(**config.to_dict())
+        train_kwargs = config.to_dict()
+        if resume_training:
+            train_kwargs['resume'] = True
+
+        results = model.train(**train_kwargs)
 
         # 7. 获取训练结果目录
         save_dir = Path(results.save_dir)
         logging.info(f"训练完成！结果保存在: {save_dir}")
 
-        # 8. 设置回调并导出指标（注意：回调已在训练过程中执行）
-        # 这里主要是为了确保所有文件都已生成
-
-        # 9. 打印最终摘要
+        # 8. 打印最终摘要
         print_final_summary(save_dir, log_file)
 
-        # 10. 成功完成
+        # 9. 成功完成
         logging.info("所有任务完成！")
         return 0
 

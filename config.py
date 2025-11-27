@@ -29,7 +29,7 @@ class TrainingConfig:
 
     # ==================== 基础训练参数 ====================
     epochs: int = 200
-    batch: float = 8 
+    batch: float = 24 
     imgsz: int = 1600 # 适配2800x1024高分辨率图像
     device: int = 0  # 使用的GPU设备ID
 

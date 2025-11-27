@@ -9,8 +9,6 @@
 - 测试配置加载
 - 预估显存使用
 
-使用方法:
-    python3 check_env.py
 """
 
 import sys
