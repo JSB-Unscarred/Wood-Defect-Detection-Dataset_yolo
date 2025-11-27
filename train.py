@@ -215,8 +215,7 @@ def main():
     log_file = setup_logging(PROJECT_ROOT)
     logging.info("日志系统已初始化")
 
-    # 3. 打印配置摘要
-    print(config.print_summary())
+    # 3. 配置加载完成
     logging.info("配置加载完成")
 
     # 4. 验证环境
