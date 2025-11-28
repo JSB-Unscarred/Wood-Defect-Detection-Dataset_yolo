@@ -54,19 +54,27 @@ class TrainingConfig:
     hsv_v: float = 0.4    # 亮度增强范围
 
     # ==================== 优化器配置 ====================
-    optimizer: str = "auto"  # 优化器类型：auto, SGD, Adam, AdamW
-    weight_decay: float = 0.0005  # L2正则化权重衰减
-    warmup_epochs: float = 3.0  # 学习率预热轮数
+    # 注意：optimizer='auto'时，lr0/lrf/momentum会被忽略！
+    # AdamW: 自适应学习率，对超参数不敏感，适合小数据集和高分辨率训练
+    optimizer: str = "AdamW"  # 优化器类型
+    lr0: float = 0.0005  # 初始学习率(1e-5, 1e-1)
+    lrf: float = 0.01  # 最终学习率因子(0.01, 1.0)
+    momentum: float = 0.937  # 动量(0.6, 0.98)	
+    weight_decay: float = 0.05  # L2正则化权重衰减(0.0, 0.001)
+    warmup_epochs: float = 3.0  # 学习率预热轮数(0.0, 5.0)
+    warmup_momentum: float = 0.8  # 预热期间的初始动量(0.0, 0.95)
+    warmup_bias_lr: float = 0.1  # 预热期间的偏置学习率
+    cos_lr: bool = True  # 使用余弦学习率调度器（平滑衰减，避免突然下降）
 
     # ==================== 训练策略 ====================
     amp: bool = True  # 混合精度训练（节省约40%显存）
-    patience: int = 100  # Early stopping耐心值（0表示禁用）
+    patience: int = 0  # Early stopping耐心值（0表示禁用）
   
     # ==================== 日志和可视化 ====================
     verbose: bool = True  # 详细输出
     plots: bool = True  # 生成训练曲线图
     save: bool = True  # 保存检查点
-    save_period: int = 1  # 每N个epoch保存一次检查点（-1表示只保存最后）
+    save_period: int = -1  # 每N个epoch保存一次检查点（-1表示只保存最后）
 
     def to_dict(self) -> Dict:
         """

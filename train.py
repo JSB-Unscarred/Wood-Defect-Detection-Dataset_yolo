@@ -156,10 +156,6 @@ def print_final_summary(save_dir: Path, log_file: Path):
     # 日志文件
     logging.info(f"\n训练日志: {log_file}")
 
-    # 可视化提示
-    logging.info(f"\n要生成训练曲线可视化，请运行:")
-    logging.info(f"  python visualize_results.py --result-dir {save_dir}")
-
     logging.info("=" * 80)
 
 
