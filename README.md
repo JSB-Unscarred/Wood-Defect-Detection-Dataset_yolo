@@ -7,7 +7,7 @@
 ```
 yolo_training_programn/
 ├── train.py                    # 主训练脚本
-├── config.py                   # 配置管理模块
+├── args.yml                    # 训练配置文件
 ├── callbacks.py                # 自定义回调函数
 ├── preprocessor.py             # 数据预处理脚本
 ├── requirements.txt            # 项目依赖
@@ -81,13 +81,13 @@ pip install -r requirements.txt
 - openpyxl >= 3.1.0
 - tensorboard >= 2.13.0
 
-### 2. 验证配置
+### 2. 配置训练参数
 
-```bash
-python3 config.py
-```
-
-这将显示完整的训练配置摘要。
+编辑 [args.yml](args.yml) 修改训练参数：
+- 训练轮数、批量大小、学习率等基础参数
+- 数据增强策略
+- 优化器配置
+- 路径配置
 
 ### 3. 开始训练
 
@@ -96,7 +96,8 @@ python3 train.py
 ```
 
 训练将自动：
-- 加载YOLOv11s预训练权重
+- 从 args.yml 加载配置
+- 加载YOLOv11s预训练权重（支持中断后自动恢复）
 - 验证数据集路径
 - 开始训练并实时记录指标
 - 保存最佳和最后权重
@@ -133,10 +134,6 @@ tensorboard --logdir=model/wood_defect_yolo11s
 ### 配置备份
 - `args.yaml` - 完整训练参数记录
 
-## 自定义配置
-
-编辑 [config.py]修改训练参数：
-
 ## 常见问题
 
 ### Q: 为什么使用 rect=True？
@@ -146,9 +143,5 @@ A: 因为数据集图像是2800x1024宽屏格式（宽高比≈2.73），矩形�
 A: 根据项目需求，可能是因为木材缺陷检测需要保持原始上下文信息，Mosaic会破坏图像完整性。
 
 ### Q: 如何继续训练？
-A: 使用最后保存的权重继续训练：
-```python
-model = YOLO('model/wood_defect_yolo11s/weights/last.pt')
-model.train(resume=True)
-```
+A: 训练脚本已自动支持中断恢复。如果检测到已有训练进度（`last.pt` 存在），直接运行 `python3 train.py` 即可自动恢复训练。
 

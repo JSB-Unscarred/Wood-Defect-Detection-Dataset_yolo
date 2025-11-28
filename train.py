@@ -12,6 +12,7 @@ import logging
 import sys
 from pathlib import Path
 from datetime import datetime
+import yaml
 
 # 添加项目路径到Python路径
 PROJECT_ROOT = Path(__file__).parent
@@ -24,8 +25,36 @@ except ImportError:
     print("请运行: pip install -r requirements.txt")
     sys.exit(1)
 
-from config import TrainingConfig
 from callbacks import MetricsExporter, ProgressLogger
+
+
+def load_config(yaml_path: Path = None) -> dict:
+    """
+    从YAML文件加载训练配置
+
+    Args:
+        yaml_path: YAML配置文件路径，默认为 PROJECT_ROOT/args.yml
+
+    Returns:
+        dict: 训练配置字典
+    """
+    if yaml_path is None:
+        yaml_path = PROJECT_ROOT / "args.yml"
+
+    if not yaml_path.exists():
+        raise FileNotFoundError(f"配置文件不存在: {yaml_path}")
+
+    with open(yaml_path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+
+    # 转换路径字符串为 Path 对象
+    path_keys = ['project_root', 'data_yaml', 'output_dir']
+    for key in path_keys:
+        if key in config and config[key]:
+            config[key] = Path(config[key])
+
+    logging.info(f"配置已从 {yaml_path} 加载")
+    return config
 
 
 def setup_logging(log_dir: Path) -> Path:
@@ -54,23 +83,24 @@ def setup_logging(log_dir: Path) -> Path:
     return log_file
 
 
-def validate_environment(config: TrainingConfig) -> bool:
+def validate_environment(config: dict) -> bool:
     """
     验证训练环境
 
     Args:
-        config: 训练配置对象
+        config: 训练配置字典
 
     Returns:
         bool: 验证是否通过
     """
     # 检查数据集配置文件
-    if not config.data_yaml.exists():
-        logging.error(f"数据集配置文件不存在: {config.data_yaml}")
+    data_yaml = config['data_yaml']
+    if not data_yaml.exists():
+        logging.error(f"数据集配置文件不存在: {data_yaml}")
         return False
 
     # 检查数据集目录
-    dataset_root = config.data_yaml.parent
+    dataset_root = data_yaml.parent
     required_dirs = ['images/train', 'images/val', 'labels/train', 'labels/val']
 
     for dir_name in required_dirs:
@@ -83,13 +113,13 @@ def validate_environment(config: TrainingConfig) -> bool:
     return True
 
 
-def setup_callbacks(model: YOLO, config: TrainingConfig, save_dir: Path):
+def setup_callbacks(model: YOLO, config: dict, save_dir: Path):
     """
     设置自定义回调函数
 
     Args:
         model: YOLO模型对象
-        config: 训练配置
+        config: 训练配置字典
         save_dir: 保存目录
 
     Returns:
@@ -97,7 +127,7 @@ def setup_callbacks(model: YOLO, config: TrainingConfig, save_dir: Path):
     """
     # 初始化导出器和日志器
     exporter = MetricsExporter(save_dir)
-    progress_logger = ProgressLogger(config.epochs)
+    progress_logger = ProgressLogger(config['epochs'])
 
     # 注册回调到YOLO模型
     model.add_callback("on_train_start", progress_logger.on_train_start)
@@ -167,7 +197,7 @@ def main():
     print("=" * 80)
 
     # 1. 加载配置
-    config = TrainingConfig()
+    config = load_config()
 
     # 2. 设置日志
     log_file = setup_logging(PROJECT_ROOT)
@@ -182,7 +212,7 @@ def main():
         sys.exit(1)
 
     # 5. 检测并加载模型
-    checkpoint_path = config.output_dir / config.name / "weights" / "last.pt"
+    checkpoint_path = config['output_dir'] / config['name'] / "weights" / "last.pt"
     resume_training = checkpoint_path.exists()
 
     if resume_training:
@@ -196,12 +226,12 @@ def main():
         except Exception as e:
             logging.error(f"Checkpoint加载失败，从头开始: {e}")
             resume_training = False
-            model = YOLO(config.pretrained_model)
+            model = YOLO(config['pretrained_model'])
     else:
         logging.info(f"未检测到训练进度，从预训练模型开始")
-        logging.info(f"加载模型: {config.pretrained_model}")
+        logging.info(f"加载模型: {config['pretrained_model']}")
         try:
-            model = YOLO(config.pretrained_model)
+            model = YOLO(config['pretrained_model'])
             logging.info("预训练模型加载成功")
         except Exception as e:
             logging.error(f"模型加载失败: {e}", exc_info=True)
@@ -214,10 +244,69 @@ def main():
 
     try:
         # 设置回调（在训练前）
-        setup_callbacks(model, config, config.output_dir / config.name)
+        setup_callbacks(model, config, config['output_dir'] / config['name'])
 
-        # 执行训练
-        train_kwargs = config.to_dict()
+        # 准备训练参数（转换为YOLO所需格式）
+        train_kwargs = {
+            # 数据集配置
+            'data': str(config['data_yaml']),
+
+            # 实验配置
+            'project': str(config['output_dir']),
+            'name': config['name'],
+            'exist_ok': config['exist_ok'],
+
+            # 基础训练参数
+            'epochs': config['epochs'],
+            'batch': config['batch'],
+            'imgsz': config['imgsz'],
+            'device': config['device'],
+
+            # 数据加载
+            'rect': config['rect'],
+            'workers': config['workers'],
+            'cache': config['cache'],
+
+            # 数据增强
+            'mosaic': config['mosaic'],
+            'fliplr': config['fliplr'],
+            'flipud': config['flipud'],
+            'scale': config['scale'],
+            'translate': config['translate'],
+            'degrees': config['degrees'],
+            'shear': config['shear'],
+            'perspective': config['perspective'],
+            'mixup': config['mixup'],
+            'hsv_h': config['hsv_h'],
+            'hsv_s': config['hsv_s'],
+            'hsv_v': config['hsv_v'],
+
+            # 损失函数权重
+            'box': config['box'],
+            'cls': config['cls'],
+
+            # 优化器
+            'optimizer': config['optimizer'],
+            'lr0': config['lr0'],
+            'lrf': config['lrf'],
+            'momentum': config['momentum'],
+            'weight_decay': config['weight_decay'],
+            'warmup_epochs': config['warmup_epochs'],
+            'warmup_momentum': config['warmup_momentum'],
+            'warmup_bias_lr': config['warmup_bias_lr'],
+            'cos_lr': config['cos_lr'],
+
+            # 训练策略
+            'amp': config['amp'],
+            'patience': config['patience'],
+
+            # 日志和保存
+            'verbose': config['verbose'],
+            'plots': config['plots'],
+            'save': config['save'],
+            'save_period': config['save_period'],
+        }
+
         if resume_training:
             train_kwargs['resume'] = True
 

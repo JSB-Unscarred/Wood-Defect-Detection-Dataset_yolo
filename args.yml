@@ -1,0 +1,71 @@
+# YOLOv11s木材缺陷检测训练配置
+# 此配置文件集中管理所有训练参数
+
+# ==================== 实验配置 ====================
+name: wood_defect_yolo11s  # 实验名称
+exist_ok: false  # 是否覆盖已存在的实验
+
+# ==================== 路径配置 ====================
+project_root: /data/chx25/yolo_training_programn
+data_yaml: /data/chx25/yolo_training_programn/wood_defect_yolo/data.yaml
+output_dir: /data/chx25/yolo_training_programn/model
+pretrained_model: yolo11s.pt  # COCO预训练权重
+
+# ==================== 基础训练参数 ====================
+epochs: 300  # 总训练轮数
+batch: 24  # 批量大小
+imgsz: 1600  # 图像尺寸
+device: 0  # 使用的GPU设备ID
+
+# ==================== 数据加载配置 ====================
+rect: true  # 矩形训练 - 关键！适配2800x1024宽屏格式
+workers: 12  # 数据加载线程数
+cache: disk  # 缓存策略: "disk", "ram", 或 false
+
+# ==================== 数据增强参数 ====================
+# 禁用的增强
+mosaic: 1.0
+
+# 启用的几何增强
+fliplr: 0.5  # 水平翻转概率
+flipud: 0.5  # 垂直翻转概率
+scale: 0.5   # 缩放增强范围（0.5表示0.5-1.5倍）
+translate: 0.1  # 平移增强
+degrees: 0.0  # 旋转增强角度（木材可能以不同角度拍摄）
+shear: 0.0  # 剪切增强（默认关闭，可按需开启）
+perspective: 0.0  # 透视增强（默认关闭）
+
+# 高级增强
+mixup: 0.0  # Mixup增强（默认关闭，可按需开启）
+
+# HSV颜色增强（默认参数全部开启）
+hsv_h: 0.015  # 色调增强范围
+hsv_s: 0.6    # 饱和度增强范围
+hsv_v: 0.3    # 亮度增强范围
+
+# ==================== 损失函数权重 ====================
+box: 7.5  # 边界框损失权重（默认值）
+cls: 2.0  # 分类损失权重（默认值）
+
+# ==================== 优化器配置 ====================
+# 注意：optimizer='auto'时，lr0/lrf/momentum会被忽略！
+optimizer: auto  # 优化器类型
+# 这里预期会使用SGD优化器，所以下面显式设置了学习率等参数
+lr0: 0.001  # 初始学习率(1e-5, 1e-1)
+lrf: 0.01  # 最终学习率因子(0.01, 1.0)
+momentum: 0.937  # 动量(0.6, 0.98)
+weight_decay: 0.0005  # L2正则化权重衰减(0.0, 0.001)
+warmup_epochs: 3.0  # 学习率预热轮数(0.0, 5.0)
+warmup_momentum: 0.8  # 预热期间的初始动量(0.0, 0.95)
+warmup_bias_lr: 0.1  # 预热期间的偏置学习率
+cos_lr: true  # 使用余弦学习率调度器（平滑衰减，避免突然下降）
+
+# ==================== 训练策略 ====================
+amp: true  # 混合精度训练（节省约40%显存）
+patience: 10  # Early stopping耐心值（0表示禁用）
+
+# ==================== 日志和可视化 ====================
+verbose: true  # 详细输出
+plots: true  # 生成训练曲线图
+save: true  # 保存检查点
+save_period: -1  # 每N个epoch保存一次检查点（-1表示只保存最后）
