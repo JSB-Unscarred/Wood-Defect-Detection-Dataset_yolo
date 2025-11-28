@@ -122,6 +122,10 @@ class MetricsExporter:
                         self.best_epoch = trainer.epoch + 1
                         logging.info(f"🏆 新的最佳模型！Epoch {self.best_epoch}, Fitness: {self.best_fitness:.6f}")
 
+                    # 每个epoch都显示当前最佳epoch信息
+                    current_epoch = trainer.epoch + 1
+                    logging.info(f"📊 当前Epoch: {current_epoch} | Fitness: {current_fitness:.6f} | 最佳Epoch: {self.best_epoch} | 最佳Fitness: {self.best_fitness:.6f}")
+
             # 更新CSV
             self._save_to_csv()
 
@@ -175,6 +179,24 @@ class MetricsExporter:
                 logging.info("=" * 80)
                 logging.info(f"最佳Epoch: {self.best_epoch}")
                 logging.info(f"最佳Fitness: {self.best_fitness:.6f}")
+
+                # 显示最佳epoch的详细指标
+                if self.metrics_history:
+                    best_record = next((r for r in self.metrics_history if r.get('epoch') == self.best_epoch), None)
+                    if best_record:
+                        logging.info("")
+                        logging.info("最佳模型指标详情:")
+                        if 'metrics/mAP50' in best_record:
+                            logging.info(f"  mAP@0.5: {best_record['metrics/mAP50']:.6f}")
+                        if 'metrics/mAP50-95' in best_record:
+                            logging.info(f"  mAP@0.5:0.95: {best_record['metrics/mAP50-95']:.6f}")
+                        if 'metrics/precision' in best_record:
+                            logging.info(f"  Precision: {best_record['metrics/precision']:.6f}")
+                        if 'metrics/recall' in best_record:
+                            logging.info(f"  Recall: {best_record['metrics/recall']:.6f}")
+                        logging.info("")
+                        logging.info("注: Fitness = 0.1 × mAP@0.5 + 0.9 × mAP@0.5:0.95")
+
                 logging.info("=" * 80)
 
             # 导出Excel（如果pandas可用）
@@ -222,6 +244,15 @@ class MetricsExporter:
                         '指标': '最低验证Box Loss',
                         '数值': df.loc[best_loss_idx, 'val/box_loss'],
                         'Epoch': df.loc[best_loss_idx, 'epoch']
+                    })
+
+                # Fitness统计（最重要的指标）
+                if 'fitness' in df.columns:
+                    best_fitness_idx = df['fitness'].idxmax()
+                    summary_data.append({
+                        '指标': '🏆 最佳Fitness (0.1×mAP50 + 0.9×mAP50-95)',
+                        '数值': df.loc[best_fitness_idx, 'fitness'],
+                        'Epoch': df.loc[best_fitness_idx, 'epoch']
                     })
 
                 # 精度/召回率统计
