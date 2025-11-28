@@ -29,23 +29,24 @@ class TrainingConfig:
 
     # ==================== 基础训练参数 ====================
     epochs: int = 300  # 总训练轮数
-    batch: float = 24 
-    imgsz: int = 1600 # 适配2800x1024高分辨率图像
+    batch: float = 64 
+    imgsz: int = 640
     device: int = 0  # 使用的GPU设备ID
 
     # ==================== 数据加载配置 ====================
     rect: bool = True  # 矩形训练 - 关键！适配2800x1024宽屏格式
     workers: int = 10  # 数据加载线程数
-    cache: str = "disk"  # 缓存策略: "disk", "ram", 或 False
+    cache: str = "dis" \
+    "k"  # 缓存策略: "disk", "ram", 或 False
 
     # ==================== 数据增强参数 ====================
     # 禁用的增强
-    mosaic: float = 0.0  # 关闭Mosaic增强
+    mosaic: float = 1
 
     # 启用的几何增强
     fliplr: float = 0.5  # 水平翻转概率
     flipud: float = 0.5  # 垂直翻转概率
-    scale: float = 0.1   # 缩放增强范围（0.5表示0.5-1.5倍）
+    scale: float = 0.5   # 缩放增强范围（0.5表示0.5-1.5倍）
     translate: float = 0.1  # 平移增强
     degrees: float = 0  # 旋转增强角度（木材可能以不同角度拍摄）
     shear: float = 0.0  # 剪切增强（默认关闭，可按需开启）
@@ -67,7 +68,7 @@ class TrainingConfig:
     # 注意：optimizer='auto'时，lr0/lrf/momentum会被忽略！
     optimizer: str = "auto"  # 优化器类型
     #这里预期会使用SGD优化器，所以下面显式设置了学习率等参数
-    lr0: float = 0.01  # 初始学习率(1e-5, 1e-1)
+    lr0: float = 0.001  # 初始学习率(1e-5, 1e-1)
     lrf: float = 0.01  # 最终学习率因子(0.01, 1.0)
     momentum: float = 0.937  # 动量(0.6, 0.98)	
     weight_decay: float = 0.0005  # L2正则化权重衰减(0.0, 0.001)
@@ -78,7 +79,7 @@ class TrainingConfig:
 
     # ==================== 训练策略 ====================
     amp: bool = True  # 混合精度训练（节省约40%显存）
-    patience: int = 50  # Early stopping耐心值（0表示禁用）
+    patience: int = 15  # Early stopping耐心值（0表示禁用）
   
     # ==================== 日志和可视化 ====================
     verbose: bool = True  # 详细输出

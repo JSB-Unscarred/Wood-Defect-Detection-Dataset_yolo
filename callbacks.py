@@ -34,6 +34,10 @@ class MetricsExporter:
         self.metrics_history: List[Dict] = []
         self.csv_initialized = False
 
+        # 追踪最佳epoch
+        self.best_fitness = None
+        self.best_epoch = None
+
         logging.info(f"指标导出器已初始化: {self.save_dir}")
 
     def on_train_epoch_end(self, trainer):
@@ -109,7 +113,14 @@ class MetricsExporter:
 
                 # 适应度函数
                 if hasattr(trainer, 'fitness') and trainer.fitness is not None:
-                    last_record['fitness'] = float(trainer.fitness)
+                    current_fitness = float(trainer.fitness)
+                    last_record['fitness'] = current_fitness
+
+                    # 追踪最佳epoch
+                    if self.best_fitness is None or current_fitness > self.best_fitness:
+                        self.best_fitness = current_fitness
+                        self.best_epoch = trainer.epoch + 1
+                        logging.info(f"🏆 新的最佳模型！Epoch {self.best_epoch}, Fitness: {self.best_fitness:.6f}")
 
             # 更新CSV
             self._save_to_csv()
@@ -156,6 +167,15 @@ class MetricsExporter:
             # 最终保存CSV
             self._save_to_csv()
             logging.info(f"训练指标CSV已保存: {self.csv_path}")
+
+            # 输出最佳epoch信息
+            if self.best_epoch is not None:
+                logging.info("=" * 80)
+                logging.info("🏆 最佳模型信息")
+                logging.info("=" * 80)
+                logging.info(f"最佳Epoch: {self.best_epoch}")
+                logging.info(f"最佳Fitness: {self.best_fitness:.6f}")
+                logging.info("=" * 80)
 
             # 导出Excel（如果pandas可用）
             if pd is not None:
