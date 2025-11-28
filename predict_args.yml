@@ -1,0 +1,20 @@
+# YOLOv11s木材缺陷检测推理配置
+
+# ==================== 路径配置 ====================
+model_path: /data/chx25/yolo_training_programn/model/wood_defect_yolo11s/weights/best.pt
+data_yaml: /data/chx25/yolo_training_programn/wood_defect_yolo/data.yaml
+source: /data/chx25/yolo_training_programn/wood_defect_yolo/images/test
+output_dir: /data/chx25/yolo_training_programn/inference_results
+
+# ==================== 推理参数 ====================
+conf: 0.25          # 置信度阈值
+iou: 0.7            # NMS IOU阈值
+imgsz: 1600         # 推理图像尺寸（与训练保持一致）
+device: 0           # GPU设备ID
+batch: 16           # 批处理大小
+
+# ==================== 功能开关 ====================
+run_val: true       # 运行完整验证评估
+save_txt: true      # 保存预测标签
+save_conf: true     # 在标签中保存置信度
+visualize: true     # 生成所有可视化图像
