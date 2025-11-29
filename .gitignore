@@ -210,4 +210,5 @@ wood_defect_yolo/*
 
 #模型输出
 model/
+inference_results/
 

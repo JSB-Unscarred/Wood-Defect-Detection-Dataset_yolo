@@ -2,19 +2,19 @@
 # 此配置文件集中管理所有训练参数
 
 # ==================== 实验配置 ====================
-name: wood_defect_yolo11s  # 实验名称
+name: wood_defect_yolo11m  # 实验名称
 exist_ok: false  # 是否覆盖已存在的实验
 
 # ==================== 路径配置 ====================
 project_root: /data/chx25/yolo_training_programn
 data_yaml: /data/chx25/yolo_training_programn/wood_defect_yolo/data.yaml
 output_dir: /data/chx25/yolo_training_programn/model
-pretrained_model: yolo11s.pt  # COCO预训练权重
+pretrained_model: yolo11m.pt  # COCO预训练权重
 
 # ==================== 基础训练参数 ====================
 epochs: 50  # 总训练轮数
-batch: 24  # 批量大小
-imgsz: 1600  # 图像尺寸
+batch: 16  # 批量大小
+imgsz: 1280  # 图像尺寸
 device: 0  # 使用的GPU设备ID
 
 # ==================== 数据加载配置 ====================
@@ -29,7 +29,7 @@ mosaic: 1.0
 # 启用的几何增强
 fliplr: 0.5  # 水平翻转概率
 flipud: 0.5  # 垂直翻转概率
-scale: 0.5   # 缩放增强范围（0.5表示0.5-1.5倍）
+scale: 0.5   # 缩放增强范围
 translate: 0.1  # 平移增强
 degrees: 0.0  # 旋转增强角度（木材可能以不同角度拍摄）
 shear: 0.0  # 剪切增强（默认关闭，可按需开启）
@@ -56,7 +56,7 @@ momentum: 0.937  # 动量(0.6, 0.98)
 weight_decay: 0.0005  # L2正则化权重衰减(0.0, 0.001)
 warmup_epochs: 3.0  # 学习率预热轮数(0.0, 5.0)
 warmup_momentum: 0.8  # 预热期间的初始动量(0.0, 0.95)
-warmup_bias_lr: 0.00005  # 预热期间的偏置学习率
+warmup_bias_lr: 0.0001  # 预热期间的偏置学习率
 cos_lr: true  # 使用余弦学习率调度器（平滑衰减，避免突然下降）
 
 # ==================== 训练策略 ====================
