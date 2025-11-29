@@ -31,9 +31,9 @@ fliplr: 0.5  # 水平翻转概率
 flipud: 0.5  # 垂直翻转概率
 scale: 0.5   # 缩放增强范围
 translate: 0.1  # 平移增强
-degrees: 0.0  # 旋转增强角度（木材可能以不同角度拍摄）
-shear: 0.0  # 剪切增强（默认关闭，可按需开启）
-perspective: 0.0  # 透视增强（默认关闭）
+degrees: 0.0  # 旋转增强角度
+shear: 0.0  # 剪切增强
+perspective: 0.0  # 透视增强
 
 # 高级增强
 mixup: 0.0  # Mixup增强（默认关闭，可按需开启）
